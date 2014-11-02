@@ -22,7 +22,6 @@
             this.background = this.add.tileSprite(0, 0, this.world.width, this.world.height, 'background');
 
             this.player = this.add.sprite(this.world.centerX, this.world.centerY, 'player');
-            this.player.anchor.setTo(0.5, 0.5);
             this.physics.arcade.enable(this.player);
             this.player.body.collideWorldBounds = false;
 
@@ -87,15 +86,15 @@
 
             var x = this.input.x
               , y = this.input.y;
-            if(this.input.x > this.world.width - this.player.body.width / 2) {
-                x = this.world.width - this.player.body.width / 2;
-            } else if(this.input.x < this.player.body.width / 2) {
-                x = this.player.body.width / 2;
+            if(this.input.x > this.world.width - this.player.body.width) {
+                x = this.world.width - this.player.body.width;
+            } else if(this.input.x < 0) {
+                x = 0;
             }
-            if(this.input.y > this.world.height - this.player.body.height / 2) {
-                y = this.world.height - this.player.body.height / 2;
-            } else if(this.input.y < this.player.body.height / 2) {
-                y = this.player.body.height / 2;
+            if(this.input.y > this.world.height - this.player.body.height) {
+                y = this.world.height - this.player.body.height;
+            } else if(this.input.y < 0) {
+                y = 0;
             }
             this.player.body.x = x;
             this.player.body.y = y;
