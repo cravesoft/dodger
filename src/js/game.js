@@ -42,15 +42,12 @@
 
             if(!!localStorage) {
                 this.bestScore = localStorage.getItem('bestScore');
-                if(!this.bestScore) {
-                    this.bestScore = 'N/A';
+                if(this.bestScore) {
+                    text = 'Best\n\n' + this.bestScore;
+                    this.bestText = this.add.text(this.world.width - 15, this.world.height - 50, text, this.style);
+                    this.bestText.anchor.set(1.0, 0.5);
                 }
-            } else {
-                this.bestScore = 'N/A';
             }
-            text = 'Best\n\n' + this.bestScore;
-            this.bestText = this.add.text(this.world.width - 15, this.world.height - 50, text, this.style);
-            this.bestText.anchor.set(1.0, 0.5);
 
             this.level = 1;
             text = 'Level ' + this.level;
@@ -118,8 +115,6 @@
                     this.bestScore = this.score;
                     localStorage.setItem('bestScore', this.bestScore);
                 }
-            } else {
-                this.bestScore = 'N/A';
             }
         },
 
