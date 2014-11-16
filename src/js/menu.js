@@ -16,8 +16,8 @@
               , t = this.add.text(this.game.world.centerX, this.game.world.centerY, text, style);
             t.anchor.set(0.5, 0.5);
 
-            text = 'Click to start'
-            style = { font: '30px Arial', fill: '#ffffff', align: 'center' }
+            text = 'Click to start';
+            style = { font: '30px Arial', fill: '#ffffff', align: 'center' };
             t = this.add.text(this.game.world.centerX, this.game.world.centerY + 80, text, style);
             t.anchor.set(0.5, 0.5);
 
