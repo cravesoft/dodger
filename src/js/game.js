@@ -7,7 +7,8 @@
       , BADDIE_MAX_SPEED = 800
       , BADDIE_START_RATE = 0.15
       , BADDIE_INCREASE_RATE = 0.01
-      , LEVEL_SCORE_THRESHOLD = 500;
+      , LEVEL_SCORE_THRESHOLD = 500
+      , BESTSCORE_TEXT = 'dodger.bestScore';
 
     function Game() {
         this.player = null;
@@ -41,12 +42,14 @@
 
 
             if(!!localStorage) {
-                this.bestScore = localStorage.getItem('bestScore');
+                this.bestScore = localStorage.getItem(BESTSCORE_TEXT);
                 if(this.bestScore) {
                     text = 'Best\n\n' + this.bestScore;
-                    this.bestText = this.add.text(this.world.width - 15, this.world.height - 50, text, this.style);
-                    this.bestText.anchor.set(1.0, 0.5);
+                } else {
+                    text = 'Best\n\n?';
                 }
+                this.bestText = this.add.text(this.world.width - 15, this.world.height - 50, text, this.style);
+                this.bestText.anchor.set(1.0, 0.5);
             }
 
             this.level = 1;
@@ -110,10 +113,12 @@
             baddie.kill();
             this.gameover = true;
             if(!!localStorage) {
-                this.bestScore = localStorage.getItem('bestScore');
+                this.bestScore = localStorage.getItem(BESTSCORE_TEXT);
                 if(!this.bestScore || this.bestScore < this.score) {
                     this.bestScore = this.score;
-                    localStorage.setItem('bestScore', this.bestScore);
+                    localStorage.setItem(BESTSCORE_TEXT, this.bestScore);
+                    var text = 'Best\n\n' + this.bestScore;
+                    this.bestText.setText(text);
                 }
             }
         },
