@@ -10,9 +10,11 @@ html, body {
     background: #000;
 }
 
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
 .game {
-    width: 640px;
-    height: 480px;
-    margin: 20px auto;
     cursor: none;
 }
