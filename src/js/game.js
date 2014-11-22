@@ -58,7 +58,6 @@
             this.levelText.anchor.set(0.5, 0.5);
             this.levelTween = this.add.tween(this.levelText).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
 
-            this.input.onDown.add(this.onInputDown, this);
             this.gameover = false;
         },
 
@@ -121,6 +120,7 @@
                     this.bestText.setText(text);
                 }
             }
+            this.input.onDown.add(this.onInputDown, this);
         },
 
         resetBaddie: function(baddie) {
