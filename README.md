@@ -9,3 +9,5 @@ You need to have [node.js](http://nodejs.org/) installed on your machine.
   $ gulp
   $ open http://localhost:9000
   ```
+
+Background pattern from [subtlepatterns.com](http://subtlepatterns.com)
