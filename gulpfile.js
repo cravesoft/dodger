@@ -1,100 +1,107 @@
-var gulp = require('gulp')
-  , gutil = require('gulp-util')
-  , clean = require('gulp-clean')
-  , concat = require('gulp-concat')
-  , rename = require('gulp-rename')
-  , minifycss = require('gulp-minify-css')
-  , minifyhtml = require('gulp-minify-html')
-  , processhtml = require('gulp-processhtml')
-  , jshint = require('gulp-jshint')
-  , uglify = require('gulp-uglify')
-  , connect = require('gulp-connect')
-  , paths;
+var gulp = require("gulp");
+var concat = require("gulp-concat");
+var uglify = require("gulp-uglify");
+var rename = require("gulp-rename");
+var useref = require("gulp-useref");
+var cleanCSS = require("gulp-clean-css");
+var connect = require("gulp-connect");
+var del = require("del");
 
-paths = {
-  assets: 'src/assets/**/*',
-  css:    'src/css/*.css', 
-  libs:   [
-    'src/bower_components/phaser-official/build/phaser.min.js'
+var paths = {
+  assets: "src/assets/**/*",
+  html: "src/*.html",
+  css: "src/css/*.css",
+  js: [
+    "src/bower_components/phaser-official/build/phaser.min.js",
+    "src/js/**/*.js"
   ],
-  js:     ['src/js/**/*.js'],
-  dist:   './dist/'
+  dist: "./dist/"
 };
 
-gulp.task('clean', function () {
-  var stream = gulp.src(paths.dist, {read: false})
-    .pipe(clean({force: true}))
-    .on('error', gutil.log);
-  return stream;
-});
+/* Not all tasks need to use streams, a gulpfile is just another node program
+ * and you can use all packages available on npm, but it must return either a
+ * Promise, a Stream or take a callback and call it
+ */
+function clean() {
+  // You can use multiple globbing patterns as you would with `gulp.src`,
+  // for example if you are using del 2.0 or above, return its promise
+  return del(["dist"]);
+}
 
-gulp.task('copy', ['clean'], function () {
-  gulp.src(paths.assets)
-    .pipe(gulp.dest(paths.dist + 'assets'))
-    .on('error', gutil.log);
-});
+function assets() {
+  return gulp.src(paths.assets).pipe(gulp.dest(paths.dist + "assets"));
+}
 
-gulp.task('uglify', ['clean','lint'], function () {
-  var srcs = [paths.libs[0], paths.js[0]];
-
-  gulp.src(srcs)
-    .pipe(concat('main.min.js'))
-    .pipe(gulp.dest(paths.dist))
-    .pipe(uglify({outSourceMaps: false}))
+function copyhtml() {
+  return gulp
+    .src(paths.html)
+    .pipe(useref())
     .pipe(gulp.dest(paths.dist));
-});
+}
 
-gulp.task('minifycss', ['clean'], function () {
- gulp.src(paths.css)
-    .pipe(minifycss({
-      keepSpecialComments: false,
-      removeEmpty: true
-    }))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest(paths.dist))
-    .on('error', gutil.log);
-});
+/*
+ * Define our tasks using plain functions
+ */
+function styles() {
+  return (
+    gulp
+      .src(paths.css)
+      .pipe(cleanCSS())
+      // pass in options to the stream
+      .pipe(
+        rename({
+          basename: "main",
+          suffix: ".min"
+        })
+      )
+      .pipe(gulp.dest(paths.dist))
+  );
+}
 
-gulp.task('processhtml', ['clean'], function() {
-  gulp.src('src/index.html')
-    .pipe(processhtml('index.html'))
-    .pipe(gulp.dest(paths.dist))
-    .on('error', gutil.log);
-});
+function scripts() {
+  return gulp
+    .src(paths.js, { sourcemaps: true })
+    .pipe(uglify())
+    .pipe(concat("main.min.js"))
+    .pipe(gulp.dest(paths.dist));
+}
 
-gulp.task('minifyhtml', ['clean'], function() {
-  gulp.src('dist/index.html')
-    .pipe(minifyhtml())
-    .pipe(gulp.dest(paths.dist))
-    .on('error', gutil.log);
-});
-
-gulp.task('lint', function() {
-  gulp.src(paths.js)
-    .pipe(jshint('.jshintrc'))
-    .pipe(jshint.reporter('default'))
-    .on('error', gutil.log);
-});
-
-gulp.task('html', function(){
-  gulp.src('src/*.html')
-    .pipe(connect.reload())
-    .on('error', gutil.log);
-});
-
-gulp.task('connect', function () {
+function connectServer() {
   connect.server({
-    root: [__dirname + '/src'],
+    root: [__dirname + "/dist"],
     port: 9000,
     livereload: true
   });
-});
+}
 
-gulp.task('watch', function () {
-  gulp.watch(paths.js, ['lint']);
-  gulp.watch(['./src/index.html', paths.css, paths.js], ['html']);
-});
+function watch() {
+  gulp.watch(paths.html, copyhtml);
+  gulp.watch(paths.js, scripts);
+  gulp.watch(paths.css, styles);
+}
 
-gulp.task('default', ['connect', 'watch']);
-gulp.task('build', ['copy', 'uglify', 'minifycss', 'processhtml', 'minifyhtml']);
+/*
+ * Specify if tasks run in series or parallel using `gulp.series` and `gulp.parallel`
+ */
+var build = gulp.series(
+  clean,
+  gulp.parallel(assets, copyhtml, styles, scripts)
+);
+var run = gulp.series(connectServer, gulp.parallel(watch));
 
+/*
+ * You can use CommonJS `exports` module notation to declare tasks
+ */
+exports.assets = assets;
+exports.copyhtml = copyhtml;
+exports.styles = styles;
+exports.scripts = scripts;
+exports.connect = connect;
+exports.clean = clean;
+exports.watch = watch;
+exports.build = build;
+exports.run = run;
+/*
+ * Define default task that can be called by just running `gulp` from cli
+ */
+exports.default = run;
